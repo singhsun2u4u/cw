@@ -1,0 +1,645 @@
+resource "aws_cloudwatch_dashboard" "cw-dashboard" {
+  dashboard_name = var.dashboard-name
+
+  dashboard_body = <<EOF
+{
+  "widgets": [
+      {
+          "height": 5,
+          "width": 4,
+          "y": 7,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/ECS", "CPUUtilization", "ClusterName", "${var.clustername}", "ServiceName", "${var.servicename}" ]
+              ],
+              "period": 300,
+              "stat": "Average",
+              "region": "${var.region}",
+              "title": "ECS Instance CPU"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 7,
+          "x": 4,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "ECS/ContainerInsights", "MemoryUtilized", "TaskDefinitionFamily", "${var.servicename}", "ClusterName", "${var.clustername}", { "yAxis": "right" } ],
+                  [ ".", "MemoryReserved", ".", ".", ".", ".", { "yAxis": "right" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "stat": "Maximum",
+              "period": 300,
+              "setPeriodToTimeRange": true,
+              "legend": {
+                  "position": "bottom"
+              }
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 1,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/ApplicationELB", "HTTPCode_ELB_5XX_Count", "LoadBalancer", "${var.alb-prod}" ],
+                  [ ".", "HTTPCode_Target_4XX_Count", ".", "." ],
+                  [ ".", "HTTPCode_ELB_502_Count", ".", "." ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 1,
+          "x": 4,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/ApplicationELB", "RequestCount", "LoadBalancer", "${var.alb-prod}" ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Sum"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 1,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/ApplicationELB", "TargetResponseTime", "LoadBalancer", "${var.alb-prod}" ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 7,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "ECS/ContainerInsights", "DesiredTaskCount", "ClusterName", "${var.clustername}", "ServiceName", "${var.servicename}", { "stat": "Average" } ],
+                  [ ".", "PendingTaskCount", "ServiceName", "${var.servicename}", "ClusterName", "${var.clustername}", { "stat": "Average" } ],
+                  [ ".", "RunningTaskCount", ".", ".", ".", ".", { "stat": "Average" } ]
+              ],
+              "region": "${var.region}",
+              "title": "Number of Desired Tasks",
+              "legend": {
+                  "position": "bottom"
+              },
+              "timezone": "Local",
+              "liveData": false,
+              "period": 60,
+              "view": "timeSeries",
+              "stacked": false
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 13,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/ElastiCache", "CPUUtilization", "CacheClusterId", "trading-be-prod-0001-001" ],
+                  [ "...", "trading-be-prod-0001-002" ],
+                  [ ".", ".", ".", "trading-be-prod-0001-003", "CacheNodeId", "0001" ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "title": "Redis CPUUtilization Per Node",
+              "period": 300,
+              "stat": "Maximum"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 13,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/ElastiCache", "DatabaseMemoryUsagePercentage", "CacheClusterId", "trading-be-prod-0001-003", "CacheNodeId", "0001" ],
+                  [ "...", "trading-be-prod-0001-002", ".", "." ],
+                  [ "...", "trading-be-prod-0001-001", ".", ".", { "stat": "Average" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "title": "Redis MemoryUsagePercent",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 13,
+          "x": 12,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/ElastiCache", "FreeableMemory", "CacheClusterId", "trading-be-prod-0001-003", "CacheNodeId", "0001" ],
+                  [ "...", "trading-be-prod-0001-002", ".", "." ],
+                  [ "...", "trading-be-prod-0001-001", ".", "." ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "title": "Redis FreeableMemory",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 13,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/ElastiCache", "NetworkBytesIn", "CacheClusterId", "trading-be-prod-0001-001" ],
+                  [ "...", "trading-be-prod-0001-002" ],
+                  [ "...", "trading-be-prod-0001-003" ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average",
+              "setPeriodToTimeRange": true,
+              "legend": {
+                  "position": "bottom"
+              },
+              "title": "NetworkBytesOut"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 13,
+          "x": 4,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/ElastiCache", "EngineCPUUtilization", "CacheClusterId", "trading-be-prod-0001-001" ],
+                  [ "...", "trading-be-prod-0001-002" ],
+                  [ "...", "trading-be-prod-0001-003" ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "title": "Redis EngineCPUUtilization",
+              "period": 300,
+              "stat": "Maximum"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 13,
+          "x": 20,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/ElastiCache", "NetworkBytesOut", "CacheClusterId", "trading-be-prod-0001-001" ],
+                  [ "...", "trading-be-prod-0001-002" ],
+                  [ "...", "trading-be-prod-0001-003" ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average",
+              "setPeriodToTimeRange": true,
+              "legend": {
+                  "position": "bottom"
+              },
+              "title": "NetworkBytesIn"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 20,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "cloud-migration", { "region": "${var.region}" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average",
+              "title": "cloud_migration rds CPUUtilization"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 20,
+          "x": 4,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "cloud-migration" ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average",
+              "title": "DatabaseConnections"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 20,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "WriteThroughput", "DBInstanceIdentifier", "cloud-migration" ],
+                  [ ".", "ReadThroughput", ".", ".", { "yAxis": "right" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average",
+              "title": "Throughput"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 20,
+          "x": 12,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "WriteIOPS", "DBInstanceIdentifier", "cloud-migration" ],
+                  [ ".", "ReadIOPS", ".", ".", { "yAxis": "right" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average",
+              "title": "IOPS"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 20,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "WriteLatency", "DBInstanceIdentifier", "cloud-migration" ],
+                  [ ".", "ReadLatency", ".", ".", { "yAxis": "right" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average",
+              "title": "Latency"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 26,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "cloud-migration-uat" ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average",
+              "title": "cloud_migration_uat rds CPUUtilization"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 26,
+          "x": 4,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "cloud-migration-uat" ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average",
+              "title": "DatabaseConnections"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 26,
+          "x": 12,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "ReadIOPS", "DBInstanceIdentifier", "cloud-migration-uat", { "yAxis": "right" } ],
+                  [ ".", "WriteIOPS", ".", "." ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 26,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "WriteThroughput", "DBInstanceIdentifier", "cloud-migration-uat" ],
+                  [ ".", "ReadThroughput", ".", ".", { "yAxis": "right" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 26,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "WriteLatency", "DBInstanceIdentifier", "cloud-migration-uat" ],
+                  [ ".", "ReadLatency", ".", ".", { "yAxis": "right" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 32,
+          "x": 0,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/RDS", "CPUUtilization", "DBInstanceIdentifier", "khelo-nifty" ]
+              ],
+              "region": "${var.region}",
+              "title": "Khelo Nifty CPUUtilization"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 32,
+          "x": 4,
+          "type": "metric",
+          "properties": {
+              "view": "timeSeries",
+              "stacked": false,
+              "metrics": [
+                  [ "AWS/RDS", "DatabaseConnections", "DBInstanceIdentifier", "khelo-nifty" ]
+              ],
+              "region": "${var.region}"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 32,
+          "x": 8,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "ReadThroughput", "DBInstanceIdentifier", "khelo-nifty", { "yAxis": "right" } ],
+                  [ ".", "WriteThroughput", ".", "." ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 32,
+          "x": 12,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "ReadIOPS", "DBInstanceIdentifier", "khelo-nifty", { "yAxis": "right" } ],
+                  [ ".", "WriteIOPS", ".", "." ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 32,
+          "x": 16,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "ReadLatency", "DBInstanceIdentifier", "khelo-nifty", { "yAxis": "right" } ],
+                  [ ".", "WriteLatency", ".", "." ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 20,
+          "x": 20,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "FreeableMemory", "DBInstanceIdentifier", "cloud-migration" ],
+                  [ ".", "FreeStorageSpace", ".", ".", { "yAxis": "right" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 26,
+          "x": 20,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "FreeStorageSpace", "DBInstanceIdentifier", "cloud-migration-uat", { "yAxis": "right" } ],
+                  [ ".", "FreeableMemory", ".", "." ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "stat": "Average",
+              "period": 300
+          }
+      },
+      {
+          "height": 5,
+          "width": 4,
+          "y": 32,
+          "x": 20,
+          "type": "metric",
+          "properties": {
+              "metrics": [
+                  [ "AWS/RDS", "FreeableMemory", "DBInstanceIdentifier", "khelo-nifty" ],
+                  [ ".", "FreeStorageSpace", ".", ".", { "yAxis": "right" } ]
+              ],
+              "view": "timeSeries",
+              "stacked": false,
+              "region": "${var.region}",
+              "period": 300,
+              "stat": "Average"
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 6,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "# ECS \n"
+          }
+      },
+            {
+          "height": 1,
+          "width": 24,
+          "y": 18,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "# RDS \n"
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 0,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "# Load Balancer\n"
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 19,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "# Cloud_Migration_Prod\n"
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 25,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "# Cloud_Migration_UAT\n"
+          }
+      },
+      {
+          "height": 1,
+          "width": 24,
+          "y": 31,
+          "x": 0,
+          "type": "text",
+          "properties": {
+              "markdown": "# Khelo_Nifty_Prod \n"
+          }
+      },
+              {
+            "height": 1,
+            "width": 24,
+            "y": 31,
+            "x": 0,
+            "type": "text",
+            "properties": {
+                "markdown": "# Redis \n"
+            }
+        }
+  ]
+}
+EOF
+}
