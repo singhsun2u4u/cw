@@ -4,8 +4,8 @@ terraform {
   #   key        = "terraform/terraform.tfstate"
   #   bucket     = "cost-optimizer"
   #   region     = "ap-south-1"
-  #   access_key = "AKIA4T7KZQL345MQJX4V"
-  #   secret_key = "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"
+  #   access_key = ""
+  #   secret_key = ""
   # }
 
   required_providers {
